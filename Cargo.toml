@@ -1,0 +1,12 @@
+[package]
+name = "lightview"
+version = "0.1.0"
+edition = "2021"
+authors = ["ltdt-apex"]
+description = "A minimal, borderless image viewer for Wayland"
+
+[dependencies]
+gtk = { version = "0.9.6", package = "gtk4" }
+gdk-pixbuf = "0.20.9"
+image = "0.25.2"
+anyhow = "1.0"
