@@ -19,6 +19,17 @@ Lightview aims to combine the best aspects of these viewers - Swappy's clean dis
 - Fullscreen mode
 - Supports common image formats (JPG, PNG, GIF, WebP, BMP)
 
+## Demo
+
+![Demo 1](img/demo1.png)
+*Clean, borderless display*
+
+![Demo 2](img/demo2.png)
+*Fullscreen display*
+
+![Demo 3](img/demo3.png)
+*Another fullscreen display*
+
 ## Requirements
 
 - Rust (latest stable)
