@@ -26,3 +26,8 @@
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# AUR package files
+PKGBUILD
+.SRCINFO
+aur-lightview/*
