@@ -24,6 +24,41 @@ Lightview aims to combine the best aspects of these viewers - Swappy's clean dis
 - Rust (latest stable)
 - GTK4
 
+## Install
+
+### From AUR (Arch Linux)
+```bash
+yay -S lightview
+```
+
+### From Cargo
+```bash
+cargo install lightview
+```
+
+### From Source
+1. Clone the repository:
+```bash
+git clone https://github.com/ltdt-apex/lightview
+cd lightview
+```
+
+2. Build and install:
+```bash
+cargo install --path .
+```
+
+Make sure `~/.cargo/bin` is in your PATH:
+```bash
+# For zsh users
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# For bash users
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ## Usage
 
 ```bash
