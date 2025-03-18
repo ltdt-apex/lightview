@@ -1,6 +1,6 @@
 # Lightview
 
-A blazing-fast, minimalist image viewer built with Rust.
+A blazing-fast, minimalist image viewer built with Rust, designed for Hyprland user.
 
 ## Design Philosophy
 
@@ -23,25 +23,6 @@ Lightview aims to combine the best aspects of these viewers - Swappy's clean dis
 
 - Rust (latest stable)
 - GTK4
-- Wayland
-
-<!-- ## Building
-
-1. Install GTK4 development libraries:
-   ```bash
-   # For Arch Linux
-   sudo pacman -S gtk4
-
-   # For Ubuntu/Debian
-   sudo apt install libgtk-4-dev
-   ```
-
-2. Build the project:
-   ```bash
-   cargo build --release
-   ```
-
-The compiled binary will be available at `target/release/lightview`
 
 ## Usage
 
@@ -49,13 +30,24 @@ The compiled binary will be available at `target/release/lightview`
 # View a single image
 lightview path/to/image.jpg
 
-# Navigate between images:
-- Left Arrow: Previous image in directory
-- Right Arrow: Next image in directory
-- F: Toggle fullscreen mode
-- Escape: Exit fullscreen mode
+# View all images in current directory
+lightview .
+
+# View all images in specific directory
+lightview path/to/directory
 ```
+
+### Keyboard Controls
+
+- `Left Arrow`: Previous image
+- `Right Arrow`: Next image
+- `F`: Toggle fullscreen (gallery mode)
+- `Q`: Quit
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-MIT -->
+[MIT](LICENSE)
