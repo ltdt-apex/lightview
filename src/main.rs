@@ -7,12 +7,11 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 const SUPPORTED_FORMATS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp", "bmp"];
+const MAX_WINDOW_SIZE_SCALE: f64 = 0.9;
 
 struct ImageViewer {
     window: gtk::ApplicationWindow,
     picture: gtk::Picture,
-    background: gtk::Box,
-    overlay: gtk::Overlay,
     current_path: Option<PathBuf>,
     current_dir: Option<PathBuf>,
     is_fullscreen: bool,
@@ -23,6 +22,7 @@ impl ImageViewer {
         let window = gtk::ApplicationWindow::builder()
             .application(app)
             .decorated(false)
+            .resizable(false)
             .build();
 
         // Create an overlay to hold both background and foreground
@@ -54,29 +54,24 @@ impl ImageViewer {
         
         // Main picture (original size)
         let picture = gtk::Picture::new();
-        picture.set_can_shrink(false); // Keep original size
+        picture.set_can_shrink(true); // Keep original size
         picture.set_keep_aspect_ratio(true);
         picture.set_halign(gtk::Align::Center);
         picture.set_valign(gtk::Align::Center);
-        picture.add_css_class("bordered-image"); // Add class for styling
+        picture.add_css_class("bordered-image");
 
         // Set up the overlay with background and centered picture
         overlay.set_child(Some(&background));
         overlay.add_overlay(&picture);
 
         window.set_child(Some(&overlay));
-        
-        // Always start in fullscreen
-        window.fullscreen();
 
         let viewer = Rc::new(RefCell::new(Self {
             window,
             picture,
-            background,
-            overlay,
             current_path: None,
             current_dir: None,
-            is_fullscreen: true,
+            is_fullscreen: false,
         }));
 
         viewer.borrow().setup_keyboard_events(Rc::clone(&viewer));
@@ -99,10 +94,58 @@ impl ImageViewer {
         match keyval {
             gdk::Key::Left => self.load_adjacent_image(-1),
             gdk::Key::Right => self.load_adjacent_image(1),
-            gdk::Key::q | gdk::Key::Q | gdk::Key::Escape => {
-                self.window.close();
-            }
+            gdk::Key::f => self.toggle_fullscreen(),
+            gdk::Key::q | gdk::Key::Q | gdk::Key::Escape => self.window.close(),
             _ => (),
+        }
+    }
+
+    fn toggle_fullscreen(&mut self) {
+        self.is_fullscreen = !self.is_fullscreen;
+
+        if self.is_fullscreen {
+            self.window.fullscreen();
+        } else {
+            self.window.unfullscreen();
+        }
+
+        if let Some(ref path) = self.current_path {
+            self.resize_window_to_image(path);
+        }
+    }
+
+    fn resize_window_to_image(&self, path: &Path) {
+        if let Ok(pixbuf) = Pixbuf::from_file(path) {
+            let mut width = pixbuf.width();
+            let mut height = pixbuf.height();
+
+            // Get the default display and its primary monitor
+            if let Some(display) = gdk::Display::default() {
+                if let Some(surface) = self.window.surface() {
+                    if let Some(monitor) = display.monitor_at_surface(&surface) {
+                        let geometry = monitor.geometry();
+                        let max_width = geometry.width();
+                        let max_height = geometry.height();
+                        
+                        let width_scale = max_width as f64 * MAX_WINDOW_SIZE_SCALE / width as f64;
+                        let height_scale = max_height as f64 * MAX_WINDOW_SIZE_SCALE / height as f64;
+                        
+                        // Use the smaller scale to maintain aspect ratio
+                        let scale = width_scale.min(height_scale);
+
+                        if scale < 1.0 {
+                            width = (width as f64 * scale) as i32;
+                            height = (height as f64 * scale) as i32;
+                        }
+                    }
+                }
+            }
+            
+            // Reset any previous size constraints
+            self.window.set_size_request(-1, -1);
+            
+            // Set the window size to match the image
+            self.window.set_default_size(width, height);
         }
     }
 
@@ -155,11 +198,14 @@ impl ImageViewer {
     fn load_image<P: AsRef<Path>>(&mut self, path: P) {
         let path = path.as_ref();
         match Pixbuf::from_file(path) {
-            Ok(pixbuf) => {
+            Ok(_) => {
                 let file = gio::File::for_path(path);
                 self.picture.set_file(Some(&file));
                 self.current_path = Some(path.to_path_buf());
                 println!("Viewing: {}", path.display());
+                
+                self.resize_window_to_image(path);
+                
                 self.window.present();
             }
             Err(e) => {
@@ -194,7 +240,7 @@ fn main() {
     println!("Program starting...");
     
     let application = gtk::Application::builder()
-        .application_id("org.ltdt.lightview")
+        .application_id("ltdt.lightview")
         .flags(gio::ApplicationFlags::HANDLES_COMMAND_LINE)
         .build();
 
