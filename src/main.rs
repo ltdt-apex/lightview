@@ -1,5 +1,6 @@
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
+use gtk::gdk::Display;
 use gdk_pixbuf::Pixbuf;
 use std::path::{Path, PathBuf};
 use std::fs;
@@ -119,25 +120,29 @@ impl ImageViewer {
             let mut width = pixbuf.width();
             let mut height = pixbuf.height();
 
-            // Get the default display and its primary monitor
-            if let Some(display) = gdk::Display::default() {
-                if let Some(surface) = self.window.surface() {
-                    if let Some(monitor) = display.monitor_at_surface(&surface) {
-                        let geometry = monitor.geometry();
-                        let max_width = geometry.width();
-                        let max_height = geometry.height();
-                        
-                        let width_scale = max_width as f64 * MAX_WINDOW_SIZE_SCALE / width as f64;
-                        let height_scale = max_height as f64 * MAX_WINDOW_SIZE_SCALE / height as f64;
-                        
-                        // Use the smaller scale to maintain aspect ratio
-                        let scale = width_scale.min(height_scale);
+            // Get the default display and monitor
+            if let Some(display) = Display::default() {
+                // Try to get monitor from surface, fallback to first available monitor
+                let monitor = self.window.surface()
+                    .and_then(|surface| display.monitor_at_surface(&surface))
+                    .unwrap_or_else(|| display.monitors()
+                        .item(0)
+                        .and_downcast::<gtk::gdk::Monitor>()
+                        .expect("No monitor found"));
 
-                        if scale < 1.0 {
-                            width = (width as f64 * scale) as i32;
-                            height = (height as f64 * scale) as i32;
-                        }
-                    }
+                let geometry = monitor.geometry();
+                let max_width = geometry.width();
+                let max_height = geometry.height();
+                
+                let width_scale = max_width as f64 * MAX_WINDOW_SIZE_SCALE / width as f64;
+                let height_scale = max_height as f64 * MAX_WINDOW_SIZE_SCALE / height as f64;
+                
+                // Use the smaller scale to maintain aspect ratio
+                let scale = width_scale.min(height_scale);
+
+                if scale < 1.0 {
+                    width = (width as f64 * scale) as i32;
+                    height = (height as f64 * scale) as i32;
                 }
             }
             
