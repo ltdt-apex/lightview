@@ -1,10 +1,10 @@
 # Lightview
 
-A blazing-fast, minimalist image viewer built with Rust, designed for Hyprland user.
+A blazing-fast, minimalist image viewer built with Rust.
 
 ## Design Philosophy
 
-The idea behind Lightview came from using various image viewers on Wayland, each with their own strengths and limitations:
+The idea behind Lightview came from using various image viewers, each with their own strengths and limitations:
 
 - Swappy has a clean, borderless display (in fullscreen mode) that looks great, but doesn't support navigating between images
 - Sxiv offers a minimal viewing experience, but with distracting white/black borders around images
