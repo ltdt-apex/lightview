@@ -15,6 +15,8 @@ gtk = { version = "0.9.6", package = "gtk4" }
 gdk-pixbuf = "0.20.9"
 image = "0.25.2"
 anyhow = "1.0"
+gstreamer = "0.23.6"
+gstreamer-pbutils = "0.23.5"
 
 [[bin]]
 name = "lightview"

@@ -1,5 +1,5 @@
 use gtk::prelude::*;
-use gtk::{gdk, gio, glib};
+use gtk::{gdk, gio, glib, MediaFile};
 use gtk::gdk::Display;
 use gdk_pixbuf::Pixbuf;
 use std::path::{Path, PathBuf};
@@ -202,19 +202,34 @@ impl ImageViewer {
 
     fn load_image<P: AsRef<Path>>(&mut self, path: P) {
         let path = path.as_ref();
-        match Pixbuf::from_file(path) {
-            Ok(_) => {
-                let file = gio::File::for_path(path);
-                self.picture.set_file(Some(&file));
-                self.current_path = Some(path.to_path_buf());
-                println!("Viewing: {}", path.display());
-                
-                self.resize_window_to_image(path);
-                
-                self.window.present();
-            }
-            Err(e) => {
-                eprintln!("Error loading image {}: {}", path.display(), e);
+        let is_gif = path.extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| ext.eq_ignore_ascii_case("gif"))
+            .unwrap_or(false);
+
+        if is_gif {
+            // Use MediaFile for animated GIFs
+            let media = MediaFile::for_filename(path);
+            media.set_loop(true);
+            media.set_playing(true);
+            self.picture.set_paintable(Some(&media));
+            self.current_path = Some(path.to_path_buf());
+            println!("Viewing (GIF): {}", path.display());
+            self.resize_window_to_image(path);
+            self.window.present();
+        } else {
+            match Pixbuf::from_file(path) {
+                Ok(_) => {
+                    let file = gio::File::for_path(path);
+                    self.picture.set_file(Some(&file));
+                    self.current_path = Some(path.to_path_buf());
+                    println!("Viewing: {}", path.display());
+                    self.resize_window_to_image(path);
+                    self.window.present();
+                }
+                Err(e) => {
+                    eprintln!("Error loading image {}: {}", path.display(), e);
+                }
             }
         }
     }
