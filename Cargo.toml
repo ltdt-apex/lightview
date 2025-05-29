@@ -1,6 +1,6 @@
 [package]
 name = "lightview"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["ltdt-apex"]
 description = "A minimal, borderless image viewer for Wayland"
@@ -9,6 +9,12 @@ repository = "https://github.com/ltdt-apex/lightview"
 license = "MIT"
 keywords = ["image-viewer", "wayland", "gtk4"]
 categories = ["graphics", "gui"]
+include = [
+    "src/**",
+    "Cargo.toml",
+    "LICENSE",
+    "README.md",
+]
 
 [dependencies]
 gtk = { version = "0.9.6", package = "gtk4" }
